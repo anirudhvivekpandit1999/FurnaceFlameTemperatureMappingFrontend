@@ -1,8 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import {
-  ScatterChart,
-  Scatter,
   LineChart,
   Line,
   XAxis,
@@ -12,8 +10,25 @@ import {
   CartesianGrid
 } from "recharts";
 
+const BASE_URL = "https://furnaceflametemperaturemappingbackend.onrender.com";
+
 export default function App() {
-  const [data, setData] = useState(null);
+  const [history, setHistory] = useState([]);
+  const [selected, setSelected] = useState([]);
+  const [datasets, setDatasets] = useState({});
+
+  useEffect(() => {
+    fetchHistory();
+  }, []);
+
+  const fetchHistory = async () => {
+    try {
+      const res = await axios.get(`${BASE_URL}/history`);
+      setHistory(res.data);
+    } catch (err) {
+      console.error("Failed to load history", err);
+    }
+  };
 
   const handleUpload = async (e) => {
     const file = e.target.files[0];
@@ -23,14 +38,11 @@ export default function App() {
     formData.append("file", file);
 
     try {
-      const res = await axios.post(
-        "https://furnaceflametemperaturemappingbackend.onrender.com/upload",
-        formData
-      );
-      setData(res.data);
+      await axios.post(`${BASE_URL}/upload`, formData);
+      fetchHistory();
     } catch (err) {
       console.error(err);
-      alert("Upload failed. Check backend.");
+      alert("Upload failed.");
     }
   };
 
@@ -39,120 +51,172 @@ export default function App() {
     return isNaN(num) ? null : num;
   };
 
-  const buildLineData = () => {
-    if (!data) return [];
+  const toggleSelection = async (item) => {
+    const isSelected = selected.includes(item.id);
 
-    return data.elevation.map((el, i) => ({
+    if (isSelected) {
+      setSelected(prev => prev.filter(id => id !== item.id));
+      return;
+    }
+
+    if (!datasets[item.id]) {
+      try {
+        const res = await axios.get(`${BASE_URL}/history/${item.id}`);
+        setDatasets(prev => ({
+          ...prev,
+          [item.id]: res.data
+        }));
+      } catch (err) {
+        console.error("Error loading dataset", err);
+        return;
+      }
+    }
+
+    setSelected(prev => [...prev, item.id]);
+  };
+
+  // 🔥 Individual run data builder
+  const buildRunData = (dataset) => {
+    return dataset.elevation.map((el, i) => ({
       elevation: safeNumber(el),
-      c1: safeNumber(data.corner1[i]),
-      c2: safeNumber(data.corner2[i]),
-      c3: safeNumber(data.corner3[i]),
-      c4: safeNumber(data.corner4[i]),
-      avg: safeNumber(data.average[i])
+      c1: safeNumber(dataset.corner1[i]),
+      c2: safeNumber(dataset.corner2[i]),
+      c3: safeNumber(dataset.corner3[i]),
+      c4: safeNumber(dataset.corner4[i]),
+      avg: safeNumber(dataset.average[i])
     }));
   };
 
-  const buildDeviationData = () => {
-    if (!data) return [];
+  // 🔥 Comparison builder
+  const buildComparisonData = () => {
+    if (selected.length === 0) return [];
 
-    return data.elevation.map((el, i) => {
-      const avg = safeNumber(data.average[i]);
-      return {
-        elevation: safeNumber(el),
-        d1: safeNumber(data.corner1[i]) - avg,
-        d2: safeNumber(data.corner2[i]) - avg,
-        d3: safeNumber(data.corner3[i]) - avg,
-        d4: safeNumber(data.corner4[i]) - avg
+    const base = datasets[selected[0]];
+    if (!base) return [];
+
+    return base.elevation.map((el, i) => {
+      let row = {
+        elevation: safeNumber(el)
       };
+
+      selected.forEach((id) => {
+        const dataset = datasets[id];
+        if (!dataset) return;
+
+        row[`run_${id}`] = safeNumber(dataset.average[i]);
+      });
+
+      return row;
     });
   };
 
-  const lineData = buildLineData();
-  const deviationData = buildDeviationData();
+  const comparisonData = buildComparisonData();
 
   return (
     <div style={{ padding: 20 }}>
-      <h2>🔥 Furnace Flame Temperature Mapping</h2>
+      <h2>🔥 Furnace Flame Temperature Dashboard</h2>
 
       <input type="file" onChange={handleUpload} />
 
-      {data && (
-        <>
-          <h3>📊 Temperature Table</h3>
-          <table border="1" cellPadding="5">
-            <thead>
-              <tr>
-                <th>Elevation</th>
-                <th>C1</th>
-                <th>C2</th>
-                <th>C3</th>
-                <th>C4</th>
-                <th>Avg</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.elevation.map((_, i) => (
-                <tr key={i}>
-                  <td>{data.elevation[i]}</td>
-                  <td>{data.corner1[i]}</td>
-                  <td>{data.corner2[i]}</td>
-                  <td>{data.corner3[i]}</td>
-                  <td>{data.corner4[i]}</td>
-                  <td>{data.average[i]}</td>
+      {/* ================= HISTORY ================= */}
+      <h3>📁 Saved History</h3>
+
+      {history.length === 0 && <p>No saved runs</p>}
+
+      {history.map((item) => (
+        <div key={item.id}>
+          <label>
+            <input
+              type="checkbox"
+              checked={selected.includes(item.id)}
+              onChange={() => toggleSelection(item)}
+            />
+            <b>{item.filename}</b> —{" "}
+            <small>{new Date(item.timestamp).toLocaleString()}</small>
+          </label>
+        </div>
+      ))}
+
+      {/* ================= PER RUN VIEW ================= */}
+      {selected.map((id) => {
+        const dataset = datasets[id];
+        if (!dataset) return null;
+
+        const runData = buildRunData(dataset);
+
+        return (
+          <div key={id} style={{ marginBottom: 40 }}>
+            <h3>
+              📄 {dataset.filename} —{" "}
+              {new Date(dataset.timestamp).toLocaleString()}
+            </h3>
+
+            {/* ===== TABLE ===== */}
+            <table border="1" cellPadding="5">
+              <thead>
+                <tr>
+                  <th>Elevation</th>
+                  <th>C1</th>
+                  <th>C2</th>
+                  <th>C3</th>
+                  <th>C4</th>
+                  <th>Avg</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {dataset.elevation.map((_, i) => (
+                  <tr key={i}>
+                    <td>{dataset.elevation[i]}</td>
+                    <td>{dataset.corner1[i]}</td>
+                    <td>{dataset.corner2[i]}</td>
+                    <td>{dataset.corner3[i]}</td>
+                    <td>{dataset.corner4[i]}</td>
+                    <td>{dataset.average[i]}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
 
-          <h3>📈 Comparative Temperature (Best View)</h3>
-          <LineChart width={800} height={450} data={lineData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="elevation" label={{ value: "Elevation (m)", position: "insideBottom" }} />
-            <YAxis label={{ value: "Temperature (°C)", angle: -90, position: "insideLeft" }} />
-            <Tooltip />
-            <Legend />
+            {/* ===== INDIVIDUAL GRAPH ===== */}
+            <h4>📈 Individual Temperature Profile</h4>
+            <LineChart width={800} height={400} data={runData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="elevation" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
 
-            <Line type="monotone" dataKey="c1" stroke="#8884d8" name="Corner 1" />
-            <Line type="monotone" dataKey="c2" stroke="#82ca9d" name="Corner 2" />
-            <Line type="monotone" dataKey="c3" stroke="#ff7300" name="Corner 3" />
-            <Line type="monotone" dataKey="c4" stroke="#000000" name="Corner 4" />
-            <Line type="monotone" dataKey="avg" stroke="#ff0000" name="Average" strokeWidth={3} />
-          </LineChart>
+              <Line dataKey="c1" stroke="#8884d8" name="Corner 1" />
+              <Line dataKey="c2" stroke="#82ca9d" name="Corner 2" />
+              <Line dataKey="c3" stroke="#ff7300" name="Corner 3" />
+              <Line dataKey="c4" stroke="#000000" name="Corner 4" />
+              <Line dataKey="avg" stroke="#ff0000" name="Average" strokeWidth={3} />
+            </LineChart>
+          </div>
+        );
+      })}
 
-          <h3>🎯 Scatter View (Raw Distribution)</h3>
-          <ScatterChart width={700} height={450}>
-            <CartesianGrid strokeDasharray="3 3" />
+      {/* ================= COMPARISON ================= */}
+      {selected.length > 0 && (
+        <>
+          <h3>📈 Run Comparison (Average)</h3>
 
-            <XAxis type="number" dataKey="x" name="Temperature" />
-            <YAxis type="number" dataKey="y" name="Elevation" />
-
-            <Tooltip />
-            <Legend />
-
-            {["corner1", "corner2", "corner3", "corner4", "average"].map((key, idx) => (
-              <Scatter
-                key={key}
-                name={key}
-                data={data.elevation.map((el, i) => ({
-                  x: safeNumber(data[key][i]),
-                  y: safeNumber(el)
-                }))}
-              />
-            ))}
-          </ScatterChart>
-
-          <h3>⚠️ Deviation from Average (Imbalance Detection)</h3>
-          <LineChart width={800} height={450} data={deviationData}>
+          <LineChart width={900} height={500} data={comparisonData}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="elevation" />
-            <YAxis label={{ value: "Deviation (°C)", angle: -90, position: "insideLeft" }} />
+            <YAxis />
             <Tooltip />
             <Legend />
 
-            <Line dataKey="d1" stroke="#8884d8" name="C1 Deviation" />
-            <Line dataKey="d2" stroke="#82ca9d" name="C2 Deviation" />
-            <Line dataKey="d3" stroke="#ff7300" name="C3 Deviation" />
-            <Line dataKey="d4" stroke="#000000" name="C4 Deviation" />
+            {selected.map((id, i) => (
+              <Line
+                key={id}
+                dataKey={`run_${id}`}
+                name={`Run ${i + 1}`}
+                stroke={`hsl(${i * 60}, 70%, 50%)`}
+                strokeWidth={2}
+              />
+            ))}
           </LineChart>
         </>
       )}
