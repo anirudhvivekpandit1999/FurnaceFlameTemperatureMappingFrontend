@@ -350,70 +350,7 @@ export default function App() {
               );
             })}
 
-            {selected.length > 1 && (
-              <section style={{ ...styles.runSection, borderColor: "rgba(34, 11, 184, 0.2)" }} className="section-paper">
-                <div style={styles.runHeader}>
-                  <div style={styles.runTitleBlock}>
-                    <div style={{ ...styles.runAccent, background: "#0b0bb8" }} />
-                    <div>
-                      <div style={styles.runTitle}>CROSS-RUN COMPARATIVE ANALYSIS</div>
-                      <div style={styles.runSubtitle}>Average temperature overlay — {selected.length} runs selected</div>
-                    </div>
-                  </div>
-                  <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-                    {selected.map((id, i) => (
-                      <div key={id} className="comparison-run-label">
-                        <div style={{ width: 8, height: 8, borderRadius: "50%", background: `hsl(${i * 70 + 15}, 65%, 45%)` }} />
-                        {datasets[id]?.filename.replace(/\.[^/.]+$/, "") || `Run ${id}`}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div style={styles.chartPanel}>
-                  <div style={styles.chartLabel}>AVG TEMPERATURE BY ELEVATION — ALL RUNS</div>
-                  <ResponsiveContainer width="100%" height={360}>
-                    <LineChart data={comparisonData} margin={{ top: 10, right: 20, bottom: 0, left: 0 }}>
-                      <CartesianGrid strokeDasharray="2 6" stroke="rgba(20, 18, 26, 0.05)" vertical={false} />
-                      <XAxis
-                        dataKey="elevation"
-                        stroke="rgba(18, 18, 26, 0.12)"
-                        tick={{ fill: "#84869a", fontSize: 10, fontFamily: "'DM Mono'" }}
-                        tickLine={false}
-                        axisLine={{ stroke: "rgba(43, 11, 184, 0.2)" }}
-                      />
-                      <YAxis
-                        type="number"
-                        domain={[500,Math.max]}
-                        allowDataOverflow
-                        stroke="rgba(20, 18, 26, 0.1)"
-                        tick={{ fill: "#85849a", fontSize: 10, fontFamily: "'DM Mono'" }}
-                        tickLine={false}
-                        axisLine={false}
-                        width={50}
-                      />
-                      <Tooltip content={<CustomTooltip />} />
-                      <Legend
-                        formatter={(value) => (
-                          <span style={{ fontFamily: "'DM Mono'", fontSize: "10px", color: "#69657a", letterSpacing: "0.1em" }}>
-                            {datasets[value.replace("run_", "")]?.filename.replace(/\.[^/.]+$/, "") || value}
-                          </span>
-                        )}
-                      />
-                      {selected.map((id, i) => (
-                        <Line
-                          key={id}
-                          dataKey={`run_${id}`}
-                          stroke={`hsl(${i * 70 + 15}, 65%, 45%)`}
-                          strokeWidth={2.5}
-                          dot={false}
-                        />
-                      ))}
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-              </section>
-            )}
+            
 
           </main>
         </div>
