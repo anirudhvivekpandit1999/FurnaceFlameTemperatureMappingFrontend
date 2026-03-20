@@ -21,7 +21,7 @@ export default function App() {
     formData.append("file", file);
 
     try {
-      const res = await axios.post("https://furnaceflametemperaturemappingbackend.onrender.com:8000/upload", formData);
+      const res = await axios.post("https://furnaceflametemperaturemappingbackend.onrender.com/upload", formData);
       console.log("API DATA:", res.data);
       setData(res.data);
     } catch (err) {
