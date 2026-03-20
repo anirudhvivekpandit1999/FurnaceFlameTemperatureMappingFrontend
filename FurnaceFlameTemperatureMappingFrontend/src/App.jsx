@@ -121,7 +121,7 @@ export default function App() {
 
   return (
     <>
-      
+
 
       <div className="heat-bar" />
       <div className="grid-bg" />
@@ -132,7 +132,7 @@ export default function App() {
           <div style={styles.headerInner}>
             <div style={styles.logoBlock}>
               <div style={styles.logoMark}>
-               <img style= {styles.logoImage} src={img}/>
+                <img style={styles.logoImage} src={img} />
               </div>
               <div>
                 <div style={styles.brandName}>ABHITECH FURNACE FLAME TEMPERATURE MAPPING</div>
@@ -215,7 +215,7 @@ export default function App() {
             {selected.length === 0 && (
               <div style={styles.emptyMain}>
                 <div style={styles.emptyIcon}>
-                                 <img style= {styles.logoImage} src={img}/>
+                  <img style={styles.logoImage} src={img} />
 
                 </div>
                 <div style={styles.emptyTitle}>SELECT A RUN TO ANALYZE</div>
@@ -280,6 +280,9 @@ export default function App() {
                           label={{ value: "ELEVATION (m)", position: "insideBottomRight", offset: -10, fill: "#a7a6b8", fontSize: 9, fontFamily: "'DM Mono'", letterSpacing: "0.1em" }}
                         />
                         <YAxis
+                          type="number"
+                          domain={[500, Math.max]}
+                          allowDataOverflow
                           stroke="rgba(20, 18, 26, 0.1)"
                           tick={{ fill: "#84849a", fontSize: 10, fontFamily: "'DM Mono'" }}
                           tickLine={false}
@@ -380,6 +383,9 @@ export default function App() {
                         axisLine={{ stroke: "rgba(43, 11, 184, 0.2)" }}
                       />
                       <YAxis
+                        type="number"
+                        domain={[500,Math.max]}
+                        allowDataOverflow
                         stroke="rgba(20, 18, 26, 0.1)"
                         tick={{ fill: "#85849a", fontSize: 10, fontFamily: "'DM Mono'" }}
                         tickLine={false}
@@ -440,16 +446,16 @@ const styles = {
     gap: "14px",
   },
   logoMark: {
-  width: "40px",
-  height: "40px",
-  border: "1.5px solid rgba(11, 0, 217, 0.25)",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  clipPath: "polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%)",
-  background: "rgba(18, 0, 217, 0.05)",
-  overflow: "hidden",
-},
+    width: "40px",
+    height: "40px",
+    border: "1.5px solid rgba(11, 0, 217, 0.25)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    clipPath: "polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%)",
+    background: "rgba(18, 0, 217, 0.05)",
+    overflow: "hidden",
+  },
   brandName: {
     fontFamily: "'Bebas Neue', sans-serif",
     fontSize: "20px",
@@ -545,12 +551,12 @@ const styles = {
     letterSpacing: "0.04em",
   },
   logoImage: {
-  maxWidth: "70%",
-  maxHeight: "70%",
-  width: "auto",
-  height: "auto",
-  objectFit: "contain",
-},
+    maxWidth: "70%",
+    maxHeight: "70%",
+    width: "auto",
+    height: "auto",
+    objectFit: "contain",
+  },
   runIndex: {
     fontFamily: "'Bebas Neue', sans-serif",
     fontSize: "16px",
