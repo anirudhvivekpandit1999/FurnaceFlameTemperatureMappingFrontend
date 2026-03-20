@@ -3,6 +3,8 @@ import axios from "axios";
 import {
   ScatterChart,
   Scatter,
+  LineChart,
+  Line,
   XAxis,
   YAxis,
   Tooltip,
@@ -21,8 +23,10 @@ export default function App() {
     formData.append("file", file);
 
     try {
-      const res = await axios.post("https://furnaceflametemperaturemappingbackend.onrender.com/upload", formData);
-      console.log("API DATA:", res.data);
+      const res = await axios.post(
+        "https://furnaceflametemperaturemappingbackend.onrender.com/upload",
+        formData
+      );
       setData(res.data);
     } catch (err) {
       console.error(err);
@@ -35,26 +39,46 @@ export default function App() {
     return isNaN(num) ? null : num;
   };
 
-  const buildScatter = (key) => {
+  const buildLineData = () => {
     if (!data) return [];
 
-    return data.elevation
-      .map((el, i) => ({
-        x: safeNumber(data[key][i]),   
-        y: safeNumber(el)              
-      }))
-      .filter(d => d.x !== null && d.y !== null);
+    return data.elevation.map((el, i) => ({
+      elevation: safeNumber(el),
+      c1: safeNumber(data.corner1[i]),
+      c2: safeNumber(data.corner2[i]),
+      c3: safeNumber(data.corner3[i]),
+      c4: safeNumber(data.corner4[i]),
+      avg: safeNumber(data.average[i])
+    }));
   };
+
+  const buildDeviationData = () => {
+    if (!data) return [];
+
+    return data.elevation.map((el, i) => {
+      const avg = safeNumber(data.average[i]);
+      return {
+        elevation: safeNumber(el),
+        d1: safeNumber(data.corner1[i]) - avg,
+        d2: safeNumber(data.corner2[i]) - avg,
+        d3: safeNumber(data.corner3[i]) - avg,
+        d4: safeNumber(data.corner4[i]) - avg
+      };
+    });
+  };
+
+  const lineData = buildLineData();
+  const deviationData = buildDeviationData();
 
   return (
     <div style={{ padding: 20 }}>
-      <h2>Furnace Flame Temperature Mapping</h2>
+      <h2>🔥 Furnace Flame Temperature Mapping</h2>
 
       <input type="file" onChange={handleUpload} />
 
       {data && (
         <>
-          <h3>Flame Temperature Table</h3>
+          <h3>📊 Temperature Table</h3>
           <table border="1" cellPadding="5">
             <thead>
               <tr>
@@ -80,33 +104,56 @@ export default function App() {
             </tbody>
           </table>
 
-          <h3>Flame Temperature Graph</h3>
+          <h3>📈 Comparative Temperature (Best View)</h3>
+          <LineChart width={800} height={450} data={lineData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="elevation" label={{ value: "Elevation (m)", position: "insideBottom" }} />
+            <YAxis label={{ value: "Temperature (°C)", angle: -90, position: "insideLeft" }} />
+            <Tooltip />
+            <Legend />
+
+            <Line type="monotone" dataKey="c1" stroke="#8884d8" name="Corner 1" />
+            <Line type="monotone" dataKey="c2" stroke="#82ca9d" name="Corner 2" />
+            <Line type="monotone" dataKey="c3" stroke="#ff7300" name="Corner 3" />
+            <Line type="monotone" dataKey="c4" stroke="#000000" name="Corner 4" />
+            <Line type="monotone" dataKey="avg" stroke="#ff0000" name="Average" strokeWidth={3} />
+          </LineChart>
+
+          <h3>🎯 Scatter View (Raw Distribution)</h3>
           <ScatterChart width={700} height={450}>
             <CartesianGrid strokeDasharray="3 3" />
 
-            <XAxis
-              type="number"
-              dataKey="x"
-              name="Temperature"
-              label={{ value: "Temperature (°C)", position: "insideBottom" }}
-            />
+            <XAxis type="number" dataKey="x" name="Temperature" />
+            <YAxis type="number" dataKey="y" name="Elevation" />
 
-            <YAxis
-              type="number"
-              dataKey="y"
-              name="Elevation"
-              label={{ value: "Elevation (m)", angle: -90, position: "insideLeft" }}
-            />
-
-            <Tooltip cursor={{ strokeDasharray: "3 3" }} />
+            <Tooltip />
             <Legend />
 
-            <Scatter name="Corner 1" data={buildScatter("corner1")} fill="#8884d8" />
-            <Scatter name="Corner 2" data={buildScatter("corner2")} fill="#82ca9d" />
-            <Scatter name="Corner 3" data={buildScatter("corner3")} fill="#ff7300" />
-            <Scatter name="Corner 4" data={buildScatter("corner4")} fill="#000000" />
-            <Scatter name="Average" data={buildScatter("average")} fill="#ff0000" />
+            {["corner1", "corner2", "corner3", "corner4", "average"].map((key, idx) => (
+              <Scatter
+                key={key}
+                name={key}
+                data={data.elevation.map((el, i) => ({
+                  x: safeNumber(data[key][i]),
+                  y: safeNumber(el)
+                }))}
+              />
+            ))}
           </ScatterChart>
+
+          <h3>⚠️ Deviation from Average (Imbalance Detection)</h3>
+          <LineChart width={800} height={450} data={deviationData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="elevation" />
+            <YAxis label={{ value: "Deviation (°C)", angle: -90, position: "insideLeft" }} />
+            <Tooltip />
+            <Legend />
+
+            <Line dataKey="d1" stroke="#8884d8" name="C1 Deviation" />
+            <Line dataKey="d2" stroke="#82ca9d" name="C2 Deviation" />
+            <Line dataKey="d3" stroke="#ff7300" name="C3 Deviation" />
+            <Line dataKey="d4" stroke="#000000" name="C4 Deviation" />
+          </LineChart>
         </>
       )}
     </div>
