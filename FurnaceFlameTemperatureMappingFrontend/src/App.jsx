@@ -35,14 +35,40 @@ export default function App() {
   const [selected, setSelected] = useState([]);
   const [datasets, setDatasets] = useState({});
   const [uploading, setUploading] = useState(false);
+  const [visibleLines, setVisibleLines] = useState({
+    c1: true,
+    c2: true,
+    c3: true,
+    c4: true,
+    avg: true,
+  });
 
   useEffect(() => {
     fetchHistory();
   }, []);
 
+  useEffect(() => {
+    if (selected.length > 2) {
+      setVisibleLines({
+        c1: false,
+        c2: false,
+        c3: false,
+        c4: false,
+        avg: true,
+      });
+    }
+  }, [selected]);
+
   const fetchHistory = async () => {
     const res = await axios.get(`${BASE_URL}/history`);
     setHistory(res.data);
+  };
+
+  const toggleLine = (key) => {
+    setVisibleLines((prev) => ({
+      ...prev,
+      [key]: !prev[key],
+    }));
   };
 
   const handleUpload = async (e) => {
@@ -226,118 +252,139 @@ export default function App() {
             )}
 
             <div style={styles.runsWrapper} className="section-paper" >
-  {selected.map((id, runIdx) => {
-    const dataset = datasets[id];
-    if (!dataset) return null;
+              {selected.map((id, runIdx) => {
+                const dataset = datasets[id];
+                if (!dataset) return null;
 
-    const runData = buildRunData(dataset);
-    const temps = runData.map((r) => r.avg);
-    const maxTemp = Math.max(...temps);
-    const minTemp = Math.min(...temps);
-    const avgTemp = (temps.reduce((a, b) => a + b, 0) / temps.length).toFixed(1);
+                const runData = buildRunData(dataset);
+                const temps = runData.map((r) => r.avg);
+                const maxTemp = Math.max(...temps);
+                const minTemp = Math.min(...temps);
+                const avgTemp = (temps.reduce((a, b) => a + b, 0) / temps.length).toFixed(1);
 
-    const accentHues = ["#0000d9", "#271a8a", "#3f41a0", "#0e0bb8", "#402e7d"];
-    const accent = accentHues[runIdx % accentHues.length];
+                const accentHues = ["#0000d9", "#271a8a", "#3f41a0", "#0e0bb8", "#402e7d"];
+                const accent = accentHues[runIdx % accentHues.length];
 
-    return (
-      <section key={id} style={styles.runSection} className="section-paper">
+                return (
+                  <section key={id} style={styles.runSection} className="section-paper">
 
-        <div style={styles.runHeader}>
-          <div style={styles.runTitleBlock}>
-            <div style={{ ...styles.runAccent, background: accent }} />
-            <div>
-              <div style={styles.runTitle}>
-                {dataset.filename.replace(/\.[^/.]+$/, "").toUpperCase()}
-              </div>
-              <div style={styles.runSubtitle}>{dataset.filename}</div>
+                    <div style={styles.runHeader}>
+                      <div style={styles.runTitleBlock}>
+                        <div style={{ ...styles.runAccent, background: accent }} />
+                        <div>
+                          <div style={styles.runTitle}>
+                            {dataset.filename.replace(/\.[^/.]+$/, "").toUpperCase()}
+                          </div>
+                          <div style={styles.runSubtitle}>{dataset.filename}</div>
+                        </div>
+                      </div>
+
+                      <div style={styles.runKpis}>
+                        {[
+                          { label: "PEAK TEMP", value: `${maxTemp.toFixed(0)}°C`, color: "#2b2bc0" },
+                          { label: "FLOOR TEMP", value: `${minTemp.toFixed(0)}°C`, color: "#1a258a" },
+                          { label: "AVG TEMP", value: `${avgTemp}°C`, color: "#0e00d9" },
+                          { label: "DATA POINTS", value: runData.length, color: "#39355a" },
+                        ].map((kpi) => (
+                          <div key={kpi.label} style={styles.kpiCard}>
+                            <div style={{ ...styles.kpiValue, color: kpi.color }}>{kpi.value}</div>
+                            <div style={styles.kpiLabel}>{kpi.label}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div style={styles.tablePanel}>
+                      <div style={styles.chartLabel}>RAW MEASUREMENT DATA</div>
+                      <div style={{ overflowX: "auto" }}>
+                        <table className="data-table">
+                          <thead>
+                            <tr>
+                              <th>ELEVATION</th>
+                              <th>CORNER 1</th>
+                              <th>CORNER 2</th>
+                              <th>CORNER 3</th>
+                              <th>CORNER 4</th>
+                              <th style={{ color: "#1900d9" }}>AVERAGE</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {dataset.elevation.map((_, i) => (
+                              <tr key={i}>
+                                <td>{dataset.elevation[i]}m</td>
+                                <td>{dataset.corner1[i]}</td>
+                                <td>{dataset.corner2[i]}</td>
+                                <td>{dataset.corner3[i]}</td>
+                                <td>{dataset.corner4[i]}</td>
+                                <td className="avg-col">{dataset.average[i]}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+
+                    <div style={styles.chartPanel}>
+                      <div style={styles.chartLabel}>THERMAL PROFILE — ELEVATION VS TEMPERATURE</div>
+
+                      <ResponsiveContainer width="100%" height={280}>
+                        <LineChart data={runData}>
+                          <CartesianGrid strokeDasharray="2 6" vertical={false} />
+                          <XAxis dataKey="elevation" tick={{ fill: "#84849a", fontSize: 10, fontFamily: "'DM Mono'" }}
+                          />
+                          <YAxis
+                            type="number"
+                            domain={[500, Math.max]}
+                            allowDataOverflow
+                            stroke="rgba(20, 18, 26, 0.1)"
+                            tick={{ fill: "#84849a", fontSize: 10, fontFamily: "'DM Mono'" }}
+                            tickLine={false}
+                            axisLine={false}
+                            width={50}
+                          />
+                          <Tooltip content={<CustomTooltip />} />
+
+                          {visibleLines.c1 && (
+                            <Line dataKey="c1" stroke={COLORS.c1} dot={false} />
+                          )}
+                          {visibleLines.c2 && (
+                            <Line dataKey="c2" stroke={COLORS.c2} dot={false} />
+                          )}
+                          {visibleLines.c3 && (
+                            <Line dataKey="c3" stroke={COLORS.c3} dot={false} />
+                          )}
+                          {visibleLines.c4 && (
+                            <Line dataKey="c4" stroke={COLORS.c4} dot={false} />
+                          )}
+                          {visibleLines.avg && (
+                            <Line dataKey="avg" stroke={COLORS.avg} strokeWidth={3} dot={false} />
+                          )}
+                        </LineChart>
+                      </ResponsiveContainer>
+
+                      <div style={styles.filterBar}>
+                        {Object.keys(COLORS).map((key) => (
+                          <button
+                            key={key}
+                            onClick={() => toggleLine(key)}
+                            style={{
+                              ...styles.filterBtn,
+                              background: visibleLines[key] ? COLORS[key] : "#e0e0ef",
+                              color: visibleLines[key] ? "#fff" : "#555",
+                            }}
+                          >
+                            {CORNER_LABELS[key]}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                  </section>
+                );
+              })}
             </div>
-          </div>
 
-          <div style={styles.runKpis}>
-            {[
-              { label: "PEAK TEMP", value: `${maxTemp.toFixed(0)}°C`, color: "#2b2bc0" },
-              { label: "FLOOR TEMP", value: `${minTemp.toFixed(0)}°C`, color: "#1a258a" },
-              { label: "AVG TEMP", value: `${avgTemp}°C`, color: "#0e00d9" },
-              { label: "DATA POINTS", value: runData.length, color: "#39355a" },
-            ].map((kpi) => (
-              <div key={kpi.label} style={styles.kpiCard}>
-                <div style={{ ...styles.kpiValue, color: kpi.color }}>{kpi.value}</div>
-                <div style={styles.kpiLabel}>{kpi.label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
 
-        <div style={styles.tablePanel}>
-          <div style={styles.chartLabel}>RAW MEASUREMENT DATA</div>
-          <div style={{ overflowX: "auto" }}>
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>ELEVATION</th>
-                  <th>CORNER 1</th>
-                  <th>CORNER 2</th>
-                  <th>CORNER 3</th>
-                  <th>CORNER 4</th>
-                  <th style={{ color: "#1900d9" }}>AVERAGE</th>
-                </tr>
-              </thead>
-              <tbody>
-                {dataset.elevation.map((_, i) => (
-                  <tr key={i}>
-                    <td>{dataset.elevation[i]}m</td>
-                    <td>{dataset.corner1[i]}</td>
-                    <td>{dataset.corner2[i]}</td>
-                    <td>{dataset.corner3[i]}</td>
-                    <td>{dataset.corner4[i]}</td>
-                    <td className="avg-col">{dataset.average[i]}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <div style={styles.chartPanel}>
-          <div style={styles.chartLabel}>THERMAL PROFILE — ELEVATION VS TEMPERATURE</div>
-
-          <ResponsiveContainer width="100%" height={280}>
-            <LineChart data={runData}>
-              <CartesianGrid strokeDasharray="2 6" vertical={false} />
-              <XAxis dataKey="elevation" />
-              <YAxis type="number" domain={[500, "auto"]} />
-              <Tooltip content={<CustomTooltip />} />
-
-              <Line dataKey="c1" stroke={COLORS.c1} dot={false} />
-              <Line dataKey="c2" stroke={COLORS.c2} dot={false} />
-              <Line dataKey="c3" stroke={COLORS.c3} dot={false} />
-              <Line dataKey="c4" stroke={COLORS.c4} dot={false} />
-              <Line dataKey="avg" stroke={COLORS.avg} strokeWidth={3} dot={false} />
-            </LineChart>
-          </ResponsiveContainer>
-
-          <div style={styles.legendRow}>
-            {Object.entries(COLORS).map(([key, color]) => (
-              <div key={key} style={styles.legendItem}>
-                <div style={{
-                  width: key === "avg" ? 20 : 12,
-                  height: key === "avg" ? 3 : 2,
-                  background: color,
-                }} />
-                <span style={styles.legendText}>
-                  {CORNER_LABELS[key]}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-      </section>
-    );
-  })}
-</div>
-
-            
 
           </main>
         </div>
@@ -355,7 +402,7 @@ const styles = {
     top: 0,
     zIndex: 50,
     boxShadow: "0 1px 0 rgba(14, 0, 217, 0.08), 0 2px 16px rgba(18, 19, 26, 0.05)",
-    
+
   },
   headerInner: {
     display: "flex",
@@ -369,6 +416,23 @@ const styles = {
     display: "flex",
     alignItems: "center",
     gap: "14px",
+  },
+
+  filterBar: {
+    display: "flex",
+    gap: "10px",
+    marginBottom: "16px",
+    flexWrap: "wrap",
+  },
+
+  filterBtn: {
+    border: "none",
+    padding: "6px 12px",
+    fontSize: "10px",
+    fontFamily: "'DM Mono', monospace",
+    letterSpacing: "0.1em",
+    cursor: "pointer",
+    borderRadius: "4px",
   },
   logoMark: {
     width: "40px",
@@ -397,16 +461,16 @@ const styles = {
     marginTop: "3px",
   },
   runsWrapper: {
-  display: "flex",
-  flexDirection: "row",
-  flexWrap: "nowrap",
-  overflowX: "auto",
-  overflowY: "hidden",
-  gap: "20px",
-  
-},
+    display: "flex",
+    flexDirection: "row",
+    flexWrap: "nowrap",
+    overflowX: "auto",
+    overflowY: "hidden",
+    gap: "20px",
 
-  
+  },
+
+
   headerStats: {
     display: "flex",
     alignItems: "center",
@@ -539,7 +603,7 @@ const styles = {
     marginBottom: "28px",
     overflowX: "hidden",
     transition: "box-shadow 0.2s ease",
-    minWidth:"700px"
+    minWidth: "700px"
   },
   runHeader: {
     display: "flex",
@@ -624,6 +688,7 @@ const styles = {
     display: "flex",
     alignItems: "center",
     gap: "8px",
+    transition: "all 0.2s ease",
   },
   legendText: {
     fontFamily: "'DM Mono', monospace",
