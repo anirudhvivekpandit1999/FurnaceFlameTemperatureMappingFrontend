@@ -43,6 +43,8 @@ export default function App() {
     avg: true,
   });
   const [viewMode, setViewMode] = useState({});
+  const [startDate, setStartDate] = useState("");
+const [endDate, setEndDate] = useState("");
 
   useEffect(() => {
     fetchHistory();
@@ -209,12 +211,35 @@ export default function App() {
 
             <div style={{ ...styles.sideSection, borderBottom: "none" }}>
               <div style={styles.sideLabel}>RUN ARCHIVE</div>
+              <div style={{ ...styles.sideSection, marginTop: "16px" }}>
+  <div style={styles.sideLabel}>FILTER BY DATE</div>
+  <input
+    type="date"
+    value={startDate}
+    onChange={(e) => setStartDate(e.target.value)}
+    style={{ width: "100%", marginBottom: "8px", padding: "4px" }}
+  />
+  <input
+    type="date"
+    value={endDate}
+    onChange={(e) => setEndDate(e.target.value)}
+    style={{ width: "100%", padding: "4px" }}
+  />
+</div>
               <div style={styles.runList}>
                 {history.length === 0 && (
                   <div style={styles.emptyState}>No runs found. Upload a CSV to begin.</div>
                 )}
-                {history.map((item, idx) => (
-                  <div
+                {history
+  .filter((item) => {
+    if (!startDate && !endDate) return true;
+    const ts = new Date(item.timestamp);
+    if (startDate && ts < new Date(startDate)) return false;
+    if (endDate && ts > new Date(endDate)) return false;
+    return true;
+  })
+  .map((item, idx) => (
+    <div
                     key={item.id}
                     className={`run-card ${selected.includes(item.id) ? "active" : ""}`}
                     onClick={() => toggleSelection(item)}
@@ -239,7 +264,7 @@ export default function App() {
                       {String(idx + 1).padStart(2, "0")}
                     </div>
                   </div>
-                ))}
+  ))}
               </div>
             </div>
           </aside>
