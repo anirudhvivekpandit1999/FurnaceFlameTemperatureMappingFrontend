@@ -202,7 +202,7 @@ export default function App() {
                 <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5">
                   <path d="M7 1v8M4 4l3-3 3 3M2 11h10" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
-                {uploading ? "UPLOADING..." : "UPLOAD CSV"}
+                {uploading ? "UPLOADING..." : "UPLOAD EXCEL"}
                 <input type="file" onChange={handleUpload} accept=".xlsx" />
               </label>
             </div>
