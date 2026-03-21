@@ -327,12 +327,12 @@ export default function App() {
                     <div style={styles.chartPanel}>
                       <div style={styles.chartLabel}>THERMAL PROFILE — ELEVATION VS TEMPERATURE</div>
 
-                      <ResponsiveContainer width="100%" height={280}>
-                        <LineChart data={runData}>
-                          <CartesianGrid strokeDasharray="2 6" vertical={false} />
-                          <XAxis dataKey="elevation" tick={{ fill: "#84849a", fontSize: 10, fontFamily: "'DM Mono'" }}
+                      <ResponsiveContainer width={280} height={560}>
+                        <LineChart data={runData} layout="vertical">
+                          <CartesianGrid strokeDasharray="2 6" vertical={true} />
+                          <YAxis dataKey="elevation" tick={{ fill: "#84849a", fontSize: 10, fontFamily: "'DM Mono'" }}
                           />
-                          <YAxis
+                          <XAxis
                             type="number"
                             domain={[500, Math.max]}
                             allowDataOverflow
