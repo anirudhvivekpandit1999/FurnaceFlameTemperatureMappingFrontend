@@ -375,7 +375,7 @@ const [endDate, setEndDate] = useState("");
                         <ResponsiveContainer width={280} height={560}>
                           <LineChart data={runData} layout="vertical">
                             <CartesianGrid strokeDasharray="2 6" vertical />
-                            <YAxis dataKey="elevation" />
+                            <YAxis dataKey="elevation" reversed/>
                             <XAxis type="number" domain={[500, Math.max]} />
                             <Tooltip content={<CustomTooltip />} />
 
