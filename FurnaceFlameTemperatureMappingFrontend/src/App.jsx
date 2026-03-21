@@ -44,7 +44,7 @@ export default function App() {
   });
   const [viewMode, setViewMode] = useState({});
   const [startDate, setStartDate] = useState("");
-const [endDate, setEndDate] = useState("");
+  const [endDate, setEndDate] = useState("");
 
   useEffect(() => {
     fetchHistory();
@@ -212,59 +212,59 @@ const [endDate, setEndDate] = useState("");
             <div style={{ ...styles.sideSection, borderBottom: "none" }}>
               <div style={styles.sideLabel}>RUN ARCHIVE</div>
               <div style={{ ...styles.sideSection, marginTop: "16px" }}>
-  <div style={styles.sideLabel}>FILTER BY DATE</div>
-  <input
-    type="date"
-    value={startDate}
-    onChange={(e) => setStartDate(e.target.value)}
-    style={{ width: "100%", marginBottom: "8px", padding: "4px" }}
-  />
-  <input
-    type="date"
-    value={endDate}
-    onChange={(e) => setEndDate(e.target.value)}
-    style={{ width: "100%", padding: "4px" }}
-  />
-</div>
+                <div style={styles.sideLabel}>FILTER BY DATE</div>
+                <input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  style={{ width: "100%", marginBottom: "8px", padding: "4px" }}
+                />
+                <input
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  style={{ width: "100%", padding: "4px" }}
+                />
+              </div>
               <div style={styles.runList}>
                 {history.length === 0 && (
                   <div style={styles.emptyState}>No runs found. Upload a CSV to begin.</div>
                 )}
                 {history
-  .filter((item) => {
-    if (!startDate && !endDate) return true;
-    const ts = new Date(item.timestamp);
-    if (startDate && ts < new Date(startDate)) return false;
-    if (endDate && ts > new Date(endDate)) return false;
-    return true;
-  })
-  .map((item, idx) => (
-    <div
-                    key={item.id}
-                    className={`run-card ${selected.includes(item.id) ? "active" : ""}`}
-                    onClick={() => toggleSelection(item)}
-                  >
-                    <div className={`checkbox-custom ${selected.includes(item.id) ? "checked" : ""}`} />
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={styles.runFileName}>
-                        {item.filename.replace(/\.[^/.]+$/, "")}
+                  .filter((item) => {
+                    if (!startDate && !endDate) return true;
+                    const ts = new Date(item.timestamp);
+                    if (startDate && ts < new Date(startDate)) return false;
+                    if (endDate && ts > new Date(endDate)) return false;
+                    return true;
+                  })
+                  .map((item, idx) => (
+                    <div
+                      key={item.id}
+                      className={`run-card ${selected.includes(item.id) ? "active" : ""}`}
+                      onClick={() => toggleSelection(item)}
+                    >
+                      <div className={`checkbox-custom ${selected.includes(item.id) ? "checked" : ""}`} />
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={styles.runFileName}>
+                          {item.filename.replace(/\.[^/.]+$/, "")}
+                        </div>
+                        <div style={styles.runMeta}>
+                          {new Date(item.timestamp).toLocaleDateString("en-GB", {
+                            day: "2-digit", month: "short", year: "numeric"
+                          })} · {new Date(item.timestamp).toLocaleTimeString("en-GB", {
+                            hour: "2-digit", minute: "2-digit"
+                          })}
+                        </div>
                       </div>
-                      <div style={styles.runMeta}>
-                        {new Date(item.timestamp).toLocaleDateString("en-GB", {
-                          day: "2-digit", month: "short", year: "numeric"
-                        })} · {new Date(item.timestamp).toLocaleTimeString("en-GB", {
-                          hour: "2-digit", minute: "2-digit"
-                        })}
+                      <div style={{
+                        ...styles.runIndex,
+                        color: selected.includes(item.id) ? "#0400d9" : "#b5b7c8"
+                      }}>
+                        {String(idx + 1).padStart(2, "0")}
                       </div>
                     </div>
-                    <div style={{
-                      ...styles.runIndex,
-                      color: selected.includes(item.id) ? "#0400d9" : "#b5b7c8"
-                    }}>
-                      {String(idx + 1).padStart(2, "0")}
-                    </div>
-                  </div>
-  ))}
+                  ))}
               </div>
             </div>
           </aside>
@@ -375,9 +375,16 @@ const [endDate, setEndDate] = useState("");
                         <ResponsiveContainer width="100%" height={560}>
                           <LineChart data={runData} layout="vertical">
                             <CartesianGrid strokeDasharray="2 6" vertical />
-                            <YAxis dataKey="elevation" reversed/>
-                            <XAxis type="number" domain={[500, Math.max]} />
-                            <Tooltip content={<CustomTooltip />} />
+                            <YAxis dataKey="elevation" reversed />
+                            <XAxis
+                              type="number"
+                              dataKey="avg"
+                              domain={[
+                                (dataMin) => dataMin - 100,
+                                (dataMax) => dataMax + 100, 
+                              ]}
+                              tick={{ fill: "#84849a", fontSize: 10, fontFamily: "'DM Mono'" }}
+                            />                            <Tooltip content={<CustomTooltip />} />
 
                             {visibleLines.c1 && <Line dataKey="c1" stroke={COLORS.c1} dot={false} />}
                             {visibleLines.c2 && <Line dataKey="c2" stroke={COLORS.c2} dot={false} />}
@@ -713,12 +720,12 @@ const styles = {
     marginTop: "4px",
   },
   chartPanel: {
-  padding: "24px 28px",
-  borderBottom: "1px solid #e3e3f0",
-  background: "#ffffff",
-  width: "100%",         
-  boxSizing: "border-box", 
-},
+    padding: "24px 28px",
+    borderBottom: "1px solid #e3e3f0",
+    background: "#ffffff",
+    width: "100%",
+    boxSizing: "border-box",
+  },
   chartLabel: {
     fontFamily: "'DM Mono', monospace",
     fontSize: "9px",
