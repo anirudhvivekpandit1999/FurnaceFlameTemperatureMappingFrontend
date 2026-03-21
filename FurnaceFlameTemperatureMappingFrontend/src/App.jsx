@@ -169,7 +169,7 @@ export default function App() {
                   <path d="M7 1v8M4 4l3-3 3 3M2 11h10" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
                 {uploading ? "UPLOADING..." : "UPLOAD CSV"}
-                <input type="file" onChange={handleUpload} accept=".csv" />
+                <input type="file" onChange={handleUpload} accept=".xlsx" />
               </label>
             </div>
 
@@ -225,130 +225,117 @@ export default function App() {
               </div>
             )}
 
-            {selected.map((id, runIdx) => {
-              const dataset = datasets[id];
-              if (!dataset) return null;
-              const runData = buildRunData(dataset);
-              const temps = runData.map((r) => r.avg);
-              const maxTemp = Math.max(...temps);
-              const minTemp = Math.min(...temps);
-              const avgTemp = (temps.reduce((a, b) => a + b, 0) / temps.length).toFixed(1);
+            <div style={styles.runsWrapper} className="section-paper" >
+  {selected.map((id, runIdx) => {
+    const dataset = datasets[id];
+    if (!dataset) return null;
 
-              const accentHues = ["#0000d9", "#271a8a", "#3f41a0", "#0e0bb8", "#402e7d"];
-              const accent = accentHues[runIdx % accentHues.length];
+    const runData = buildRunData(dataset);
+    const temps = runData.map((r) => r.avg);
+    const maxTemp = Math.max(...temps);
+    const minTemp = Math.min(...temps);
+    const avgTemp = (temps.reduce((a, b) => a + b, 0) / temps.length).toFixed(1);
 
-              return (
-                <section key={id} style={styles.runSection} className="section-paper">
+    const accentHues = ["#0000d9", "#271a8a", "#3f41a0", "#0e0bb8", "#402e7d"];
+    const accent = accentHues[runIdx % accentHues.length];
 
-                  <div style={styles.runHeader}>
-                    <div style={styles.runTitleBlock}>
-                      <div style={{ ...styles.runAccent, background: accent }} />
-                      <div>
-                        <div style={styles.runTitle}>
-                          {dataset.filename.replace(/\.[^/.]+$/, "").toUpperCase()}
-                        </div>
-                        <div style={styles.runSubtitle}>{dataset.filename}</div>
-                      </div>
-                    </div>
+    return (
+      <section key={id} style={styles.runSection} className="section-paper">
 
-                    <div style={styles.runKpis}>
-                      {[
-                        { label: "PEAK TEMP", value: `${maxTemp.toFixed(0)}°C`, color: "#2b2bc0" },
-                        { label: "FLOOR TEMP", value: `${minTemp.toFixed(0)}°C`, color: "#1a258a" },
-                        { label: "AVG TEMP", value: `${avgTemp}°C`, color: "#0e00d9" },
-                        { label: "DATA POINTS", value: runData.length, color: "#39355a" },
-                      ].map((kpi) => (
-                        <div key={kpi.label} style={styles.kpiCard}>
-                          <div style={{ ...styles.kpiValue, color: kpi.color }}>{kpi.value}</div>
-                          <div style={styles.kpiLabel}>{kpi.label}</div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+        <div style={styles.runHeader}>
+          <div style={styles.runTitleBlock}>
+            <div style={{ ...styles.runAccent, background: accent }} />
+            <div>
+              <div style={styles.runTitle}>
+                {dataset.filename.replace(/\.[^/.]+$/, "").toUpperCase()}
+              </div>
+              <div style={styles.runSubtitle}>{dataset.filename}</div>
+            </div>
+          </div>
 
-                  <div style={styles.chartPanel}>
-                    <div style={styles.chartLabel}>THERMAL PROFILE — ELEVATION VS TEMPERATURE</div>
-                    <ResponsiveContainer width="100%" height={300}>
-                      <LineChart data={runData} margin={{ top: 10, right: 20, bottom: 0, left: 0 }}>
-                        <CartesianGrid strokeDasharray="2 6" stroke="rgba(26,22,18,0.06)" vertical={false} />
-                        <XAxis
-                          dataKey="elevation"
-                          stroke="rgba(18, 18, 26, 0.15)"
-                          tick={{ fill: "#88849a", fontSize: 10, fontFamily: "'DM Mono'" }}
-                          tickLine={false}
-                          axisLine={{ stroke: "rgba(43, 0, 217, 0.2)" }}
-                          label={{ value: "ELEVATION (m)", position: "insideBottomRight", offset: -10, fill: "#a7a6b8", fontSize: 9, fontFamily: "'DM Mono'", letterSpacing: "0.1em" }}
-                        />
-                        <YAxis
-                          type="number"
-                          domain={[500, Math.max]}
-                          allowDataOverflow
-                          stroke="rgba(20, 18, 26, 0.1)"
-                          tick={{ fill: "#84849a", fontSize: 10, fontFamily: "'DM Mono'" }}
-                          tickLine={false}
-                          axisLine={false}
-                          width={50}
-                        />
-                        <Tooltip content={<CustomTooltip />} />
-                        <Line dataKey="c1" stroke={COLORS.c1} strokeWidth={1.5} dot={false} name="Corner 1" />
-                        <Line dataKey="c2" stroke={COLORS.c2} strokeWidth={1.5} dot={false} name="Corner 2" />
-                        <Line dataKey="c3" stroke={COLORS.c3} strokeWidth={1.5} dot={false} name="Corner 3" />
-                        <Line dataKey="c4" stroke={COLORS.c4} strokeWidth={1.5} dot={false} name="Corner 4" />
-                        <Line dataKey="avg" stroke={COLORS.avg} strokeWidth={3} dot={false} name="Average" />
-                      </LineChart>
-                    </ResponsiveContainer>
+          <div style={styles.runKpis}>
+            {[
+              { label: "PEAK TEMP", value: `${maxTemp.toFixed(0)}°C`, color: "#2b2bc0" },
+              { label: "FLOOR TEMP", value: `${minTemp.toFixed(0)}°C`, color: "#1a258a" },
+              { label: "AVG TEMP", value: `${avgTemp}°C`, color: "#0e00d9" },
+              { label: "DATA POINTS", value: runData.length, color: "#39355a" },
+            ].map((kpi) => (
+              <div key={kpi.label} style={styles.kpiCard}>
+                <div style={{ ...styles.kpiValue, color: kpi.color }}>{kpi.value}</div>
+                <div style={styles.kpiLabel}>{kpi.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
 
-                    <div style={styles.legendRow}>
-                      {Object.entries(COLORS).map(([key, color]) => (
-                        <div key={key} style={styles.legendItem}>
-                          <div style={{
-                            width: key === "avg" ? 20 : 12,
-                            height: key === "avg" ? 3 : 2,
-                            background: color,
-                            borderRadius: 2,
-                            flexShrink: 0,
-                          }} />
-                          <span style={{ ...styles.legendText, color: key === "avg" ? color : "#69657a" }}>
-                            {CORNER_LABELS[key]}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+        <div style={styles.tablePanel}>
+          <div style={styles.chartLabel}>RAW MEASUREMENT DATA</div>
+          <div style={{ overflowX: "auto" }}>
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>ELEVATION</th>
+                  <th>CORNER 1</th>
+                  <th>CORNER 2</th>
+                  <th>CORNER 3</th>
+                  <th>CORNER 4</th>
+                  <th style={{ color: "#1900d9" }}>AVERAGE</th>
+                </tr>
+              </thead>
+              <tbody>
+                {dataset.elevation.map((_, i) => (
+                  <tr key={i}>
+                    <td>{dataset.elevation[i]}m</td>
+                    <td>{dataset.corner1[i]}</td>
+                    <td>{dataset.corner2[i]}</td>
+                    <td>{dataset.corner3[i]}</td>
+                    <td>{dataset.corner4[i]}</td>
+                    <td className="avg-col">{dataset.average[i]}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
 
-                  <div style={styles.tablePanel}>
-                    <div style={styles.chartLabel}>RAW MEASUREMENT DATA</div>
-                    <div style={{ overflowX: "auto" }}>
-                      <table className="data-table">
-                        <thead>
-                          <tr>
-                            <th>ELEVATION</th>
-                            <th>CORNER 1</th>
-                            <th>CORNER 2</th>
-                            <th>CORNER 3</th>
-                            <th>CORNER 4</th>
-                            <th style={{ color: "#1900d9" }}>AVERAGE</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {dataset.elevation.map((_, i) => (
-                            <tr key={i}>
-                              <td>{dataset.elevation[i]}m</td>
-                              <td>{dataset.corner1[i]}</td>
-                              <td>{dataset.corner2[i]}</td>
-                              <td>{dataset.corner3[i]}</td>
-                              <td>{dataset.corner4[i]}</td>
-                              <td className="avg-col">{dataset.average[i]}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
+        <div style={styles.chartPanel}>
+          <div style={styles.chartLabel}>THERMAL PROFILE — ELEVATION VS TEMPERATURE</div>
 
-                </section>
-              );
-            })}
+          <ResponsiveContainer width="100%" height={280}>
+            <LineChart data={runData}>
+              <CartesianGrid strokeDasharray="2 6" vertical={false} />
+              <XAxis dataKey="elevation" />
+              <YAxis type="number" domain={[500, "auto"]} />
+              <Tooltip content={<CustomTooltip />} />
+
+              <Line dataKey="c1" stroke={COLORS.c1} dot={false} />
+              <Line dataKey="c2" stroke={COLORS.c2} dot={false} />
+              <Line dataKey="c3" stroke={COLORS.c3} dot={false} />
+              <Line dataKey="c4" stroke={COLORS.c4} dot={false} />
+              <Line dataKey="avg" stroke={COLORS.avg} strokeWidth={3} dot={false} />
+            </LineChart>
+          </ResponsiveContainer>
+
+          <div style={styles.legendRow}>
+            {Object.entries(COLORS).map(([key, color]) => (
+              <div key={key} style={styles.legendItem}>
+                <div style={{
+                  width: key === "avg" ? 20 : 12,
+                  height: key === "avg" ? 3 : 2,
+                  background: color,
+                }} />
+                <span style={styles.legendText}>
+                  {CORNER_LABELS[key]}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+      </section>
+    );
+  })}
+</div>
 
             
 
@@ -368,6 +355,7 @@ const styles = {
     top: 0,
     zIndex: 50,
     boxShadow: "0 1px 0 rgba(14, 0, 217, 0.08), 0 2px 16px rgba(18, 19, 26, 0.05)",
+    
   },
   headerInner: {
     display: "flex",
@@ -408,6 +396,17 @@ const styles = {
     textTransform: "uppercase",
     marginTop: "3px",
   },
+  runsWrapper: {
+  display: "flex",
+  flexDirection: "row",
+  flexWrap: "nowrap",
+  overflowX: "auto",
+  overflowY: "hidden",
+  gap: "20px",
+  
+},
+
+  
   headerStats: {
     display: "flex",
     alignItems: "center",
@@ -538,8 +537,9 @@ const styles = {
   },
   runSection: {
     marginBottom: "28px",
-    overflow: "hidden",
+    overflowX: "hidden",
     transition: "box-shadow 0.2s ease",
+    minWidth:"700px"
   },
   runHeader: {
     display: "flex",
