@@ -42,6 +42,7 @@ export default function App() {
     c4: true,
     avg: true,
   });
+  const [viewMode, setViewMode] = useState({});
 
   useEffect(() => {
     fetchHistory();
@@ -68,6 +69,13 @@ export default function App() {
     setVisibleLines((prev) => ({
       ...prev,
       [key]: !prev[key],
+    }));
+  };
+
+  const toggleView = (id) => {
+    setViewMode((prev) => ({
+      ...prev,
+      [id]: prev[id] === "table" ? "graph" : "table",
     }));
   };
 
@@ -269,6 +277,12 @@ export default function App() {
                   <section key={id} style={styles.runSection} className="section-paper">
 
                     <div style={styles.runHeader}>
+                      <button
+                        onClick={() => toggleView(id)}
+                        style={styles.viewToggle}
+                      >
+                        {viewMode[id] === "table" ? "SHOW GRAPH" : "SHOW TABLE"}
+                      </button>
                       <div style={styles.runTitleBlock}>
                         <div style={{ ...styles.runAccent, background: accent }} />
                         <div>
@@ -294,90 +308,80 @@ export default function App() {
                       </div>
                     </div>
 
-                    <div style={styles.tablePanel}>
-                      <div style={styles.chartLabel}>RAW MEASUREMENT DATA</div>
-                      <div style={{ overflowX: "auto" }}>
-                        <table className="data-table">
-                          <thead>
-                            <tr>
-                              <th>ELEVATION</th>
-                              <th>CORNER 1</th>
-                              <th>CORNER 2</th>
-                              <th>CORNER 3</th>
-                              <th>CORNER 4</th>
-                              <th style={{ color: "#1900d9" }}>AVERAGE</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {dataset.elevation.map((_, i) => (
-                              <tr key={i}>
-                                <td>{dataset.elevation[i]}m</td>
-                                <td>{dataset.corner1[i]}</td>
-                                <td>{dataset.corner2[i]}</td>
-                                <td>{dataset.corner3[i]}</td>
-                                <td>{dataset.corner4[i]}</td>
-                                <td className="avg-col">{dataset.average[i]}</td>
+                    {viewMode[id] === "table" ? (
+
+                      <div style={styles.tablePanel}>
+                        <div style={styles.chartLabel}>RAW MEASUREMENT DATA</div>
+                        <div style={{ overflowX: "auto" }}>
+                          <table className="data-table">
+                            <thead>
+                              <tr>
+                                <th>ELEVATION</th>
+                                <th>CORNER 1</th>
+                                <th>CORNER 2</th>
+                                <th>CORNER 3</th>
+                                <th>CORNER 4</th>
+                                <th style={{ color: "#1900d9" }}>AVERAGE</th>
                               </tr>
-                            ))}
-                          </tbody>
-                        </table>
+                            </thead>
+                            <tbody>
+                              {dataset.elevation.map((_, i) => (
+                                <tr key={i}>
+                                  <td>{dataset.elevation[i]}m</td>
+                                  <td>{dataset.corner1[i]}</td>
+                                  <td>{dataset.corner2[i]}</td>
+                                  <td>{dataset.corner3[i]}</td>
+                                  <td>{dataset.corner4[i]}</td>
+                                  <td className="avg-col">{dataset.average[i]}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
                       </div>
-                    </div>
 
-                    <div style={styles.chartPanel}>
-                      <div style={styles.chartLabel}>THERMAL PROFILE — ELEVATION VS TEMPERATURE</div>
+                    ) : (
 
-                      <ResponsiveContainer width={280} height={560}>
-                        <LineChart data={runData} layout="vertical">
-                          <CartesianGrid strokeDasharray="2 6" vertical={true} />
-                          <YAxis dataKey="elevation" tick={{ fill: "#84849a", fontSize: 10, fontFamily: "'DM Mono'" }}
-                          />
-                          <XAxis
-                            type="number"
-                            domain={[500, Math.max]}
-                            allowDataOverflow
-                            stroke="rgba(20, 18, 26, 0.1)"
-                            tick={{ fill: "#84849a", fontSize: 10, fontFamily: "'DM Mono'" }}
-                            tickLine={false}
-                            axisLine={false}
-                            width={50}
-                          />
-                          <Tooltip content={<CustomTooltip />} />
+                      <div style={styles.chartPanel}>
+                        <div style={styles.chartLabel}>
+                          THERMAL PROFILE — ELEVATION VS TEMPERATURE
+                        </div>
 
-                          {visibleLines.c1 && (
-                            <Line dataKey="c1" stroke={COLORS.c1} dot={false} />
-                          )}
-                          {visibleLines.c2 && (
-                            <Line dataKey="c2" stroke={COLORS.c2} dot={false} />
-                          )}
-                          {visibleLines.c3 && (
-                            <Line dataKey="c3" stroke={COLORS.c3} dot={false} />
-                          )}
-                          {visibleLines.c4 && (
-                            <Line dataKey="c4" stroke={COLORS.c4} dot={false} />
-                          )}
-                          {visibleLines.avg && (
-                            <Line dataKey="avg" stroke={COLORS.avg} strokeWidth={3} dot={false} />
-                          )}
-                        </LineChart>
-                      </ResponsiveContainer>
+                        <ResponsiveContainer width={280} height={560}>
+                          <LineChart data={runData} layout="vertical">
+                            <CartesianGrid strokeDasharray="2 6" vertical />
+                            <YAxis dataKey="elevation" />
+                            <XAxis type="number" domain={[500, Math.max]} />
+                            <Tooltip content={<CustomTooltip />} />
 
-                      <div style={styles.filterBar}>
-                        {Object.keys(COLORS).map((key) => (
-                          <button
-                            key={key}
-                            onClick={() => toggleLine(key)}
-                            style={{
-                              ...styles.filterBtn,
-                              background: visibleLines[key] ? COLORS[key] : "#e0e0ef",
-                              color: visibleLines[key] ? "#fff" : "#555",
-                            }}
-                          >
-                            {CORNER_LABELS[key]}
-                          </button>
-                        ))}
+                            {visibleLines.c1 && <Line dataKey="c1" stroke={COLORS.c1} dot={false} />}
+                            {visibleLines.c2 && <Line dataKey="c2" stroke={COLORS.c2} dot={false} />}
+                            {visibleLines.c3 && <Line dataKey="c3" stroke={COLORS.c3} dot={false} />}
+                            {visibleLines.c4 && <Line dataKey="c4" stroke={COLORS.c4} dot={false} />}
+                            {visibleLines.avg && (
+                              <Line dataKey="avg" stroke={COLORS.avg} strokeWidth={3} dot={false} />
+                            )}
+                          </LineChart>
+                        </ResponsiveContainer>
+
+                        <div style={styles.filterBar}>
+                          {Object.keys(COLORS).map((key) => (
+                            <button
+                              key={key}
+                              onClick={() => toggleLine(key)}
+                              style={{
+                                ...styles.filterBtn,
+                                background: visibleLines[key] ? COLORS[key] : "#e0e0ef",
+                                color: visibleLines[key] ? "#fff" : "#555",
+                              }}
+                            >
+                              {CORNER_LABELS[key]}
+                            </button>
+                          ))}
+                        </div>
                       </div>
-                    </div>
+
+                    )}
 
                   </section>
                 );
@@ -404,6 +408,24 @@ const styles = {
     boxShadow: "0 1px 0 rgba(14, 0, 217, 0.08), 0 2px 16px rgba(18, 19, 26, 0.05)",
 
   },
+
+  viewToggle: {
+    border: "1px solid #d1cfe0",
+    background: "#ffffff",
+    fontFamily: "'DM Mono', monospace",
+    fontSize: "10px",
+    letterSpacing: "0.12em",
+    padding: "6px 10px",
+    cursor: "pointer",
+    borderRadius: "4px",
+    transition: "opacity 0.3s ease",
+    ":hover": {
+      background: "#f0f0ff",
+    }
+  },
+
+
+
   headerInner: {
     display: "flex",
     alignItems: "center",
