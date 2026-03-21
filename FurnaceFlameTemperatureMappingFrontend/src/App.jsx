@@ -372,7 +372,7 @@ const [endDate, setEndDate] = useState("");
                           THERMAL PROFILE — ELEVATION VS TEMPERATURE
                         </div>
 
-                        <ResponsiveContainer width={280} height={560}>
+                        <ResponsiveContainer width="100%" height={560}>
                           <LineChart data={runData} layout="vertical">
                             <CartesianGrid strokeDasharray="2 6" vertical />
                             <YAxis dataKey="elevation" reversed/>
@@ -713,10 +713,12 @@ const styles = {
     marginTop: "4px",
   },
   chartPanel: {
-    padding: "24px 28px",
-    borderBottom: "1px solid #e3e3f0",
-    background: "#ffffff",
-  },
+  padding: "24px 28px",
+  borderBottom: "1px solid #e3e3f0",
+  background: "#ffffff",
+  width: "100%",         
+  boxSizing: "border-box", 
+},
   chartLabel: {
     fontFamily: "'DM Mono', monospace",
     fontSize: "9px",
