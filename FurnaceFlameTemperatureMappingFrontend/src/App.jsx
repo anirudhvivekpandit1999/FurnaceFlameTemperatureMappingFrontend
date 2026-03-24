@@ -47,9 +47,9 @@ export default function App() {
   const [endDate, setEndDate] = useState("");
   const [selectedStation, setSelectedStation] = useState(null);
   const [selectedUnit, setSelectedUnit] = useState(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
-    // Load selected station and unit from localStorage
     const station = localStorage.getItem("selectedStation");
     const unit = localStorage.getItem("selectedUnit");
     if (station) setSelectedStation(JSON.parse(station));
@@ -173,7 +173,17 @@ export default function App() {
       <div className="content" style={{ minHeight: "100vh" }}>
 
         <header style={styles.header}>
-          <div style={styles.headerInner}>
+          <div style={styles.headerInner} className="header-inner">
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              style={styles.hamburger}
+              className="hamburger"
+              aria-label="Toggle sidebar"
+            >
+              <span style={styles.hamburgerLine}></span>
+              <span style={styles.hamburgerLine}></span>
+              <span style={styles.hamburgerLine}></span>
+            </button>
             <div style={styles.logoBlock}>
               <div style={styles.logoMark}>
                 <img style={styles.logoImage} src={img} />
@@ -214,7 +224,7 @@ export default function App() {
 
         <div style={styles.mainLayout}>
 
-          <aside style={styles.sidebar}>
+          <aside style={styles.sidebar} className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
             <div style={styles.sideSection}>
               <div style={styles.sideLabel}>INGEST DATA</div>
               <label className="upload-zone">
@@ -286,7 +296,7 @@ export default function App() {
             </div>
           </aside>
 
-          <main style={styles.mainContent}>
+          <main style={styles.mainContent} className="main-content">
 
             {selected.length === 0 && (
               <div style={styles.emptyMain}>
@@ -483,6 +493,25 @@ const styles = {
     height: "64px",
     width: "100%",
   },
+  hamburger: {
+    display: "none",
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+    width: "40px",
+    height: "40px",
+    background: "transparent",
+    border: "none",
+    cursor: "pointer",
+    marginRight: "16px",
+  },
+  hamburgerLine: {
+    width: "20px",
+    height: "2px",
+    background: "#12121a",
+    margin: "2px 0",
+    transition: "all 0.3s ease",
+  },
   logoBlock: {
     display: "flex",
     alignItems: "center",
@@ -574,6 +603,7 @@ const styles = {
     display: "flex",
     minHeight: "calc(100vh - 64px)",
     width: "100%",
+    position: "relative",
   },
   sidebar: {
     width: "280px",

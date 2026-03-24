@@ -126,16 +126,16 @@ export default function StationSelect() {
           </div>
         </header>
 
-        <div style={styles.mainContent}>
-          <div style={styles.selectionContainer}>
-            <div style={styles.selectionTitle}>SELECT STATION & UNIT</div>
-            <div style={styles.selectionSubtitle}>
+        <div style={styles.mainContent} className="station-select-main">
+          <div style={styles.selectionContainer} className="station-select-container">
+            <div style={styles.selectionTitle} className="station-select-title">SELECT STATION & UNIT</div>
+            <div style={styles.selectionSubtitle} className="station-select-subtitle">
               Choose your station and unit to proceed with temperature mapping analysis.
             </div>
 
             <div style={styles.selectionSection}>
               <div style={styles.sectionLabel}>STATION</div>
-              <div style={styles.buttonGrid}>
+              <div style={styles.buttonGrid} className="station-select-grid">
                 {stations.map((station) => (
                   <button
                     key={station.id}
@@ -146,6 +146,7 @@ export default function StationSelect() {
                       color: selectedStation?.id === station.id ? "#ffffff" : "#12121a",
                       borderColor: selectedStation?.id === station.id ? "#0000d9" : "#d1cfe0",
                     }}
+                    className="station-select-button"
                   >
                     {station.name}
                   </button>
@@ -156,7 +157,7 @@ export default function StationSelect() {
             {selectedStation && (
               <div style={styles.selectionSection}>
                 <div style={styles.sectionLabel}>UNIT — {selectedStation.name}</div>
-                <div style={styles.buttonGrid}>
+                <div style={styles.buttonGrid} className="station-select-grid">
                   {units.map((unit) => (
                     <button
                       key={unit.id}
@@ -167,6 +168,7 @@ export default function StationSelect() {
                         color: selectedUnit?.id === unit.id ? "#ffffff" : "#12121a",
                         borderColor: selectedUnit?.id === unit.id ? "#0000d9" : "#d1cfe0",
                       }}
+                      className="station-select-button"
                     >
                       {unit.name}
                     </button>
@@ -184,6 +186,7 @@ export default function StationSelect() {
                 color: selectedStation && selectedUnit ? "#ffffff" : "#85849a",
                 cursor: selectedStation && selectedUnit ? "pointer" : "not-allowed",
               }}
+              className="station-select-proceed"
             >
               PROCEED TO DASHBOARD
             </button>
