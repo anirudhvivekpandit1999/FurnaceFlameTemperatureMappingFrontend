@@ -403,12 +403,12 @@ export default function App() {
                               tick={{ fill: "#84849a", fontSize: 10, fontFamily: "'DM Mono'" }}
                             />                            <Tooltip content={<CustomTooltip />} />
 
-                            {visibleLines.c1 && <Line dataKey="c1" stroke={COLORS.c1} dot={false} />}
-                            {visibleLines.c2 && <Line dataKey="c2" stroke={COLORS.c2} dot={false} />}
-                            {visibleLines.c3 && <Line dataKey="c3" stroke={COLORS.c3} dot={false} />}
-                            {visibleLines.c4 && <Line dataKey="c4" stroke={COLORS.c4} dot={false} />}
+                            {visibleLines.c1 && <Line type="monotone" dataKey="c1" stroke={COLORS.c1} dot={false} strokeWidth={2} />}
+                            {visibleLines.c2 && <Line type="monotone" dataKey="c2" stroke={COLORS.c2} dot={false} strokeWidth={2} />}
+                            {visibleLines.c3 && <Line type="monotone" dataKey="c3" stroke={COLORS.c3} dot={false} strokeWidth={2} />}
+                            {visibleLines.c4 && <Line type="monotone" dataKey="c4" stroke={COLORS.c4} dot={false} strokeWidth={2} />}
                             {visibleLines.avg && (
-                              <Line dataKey="avg" stroke={COLORS.avg} strokeWidth={3} dot={false} />
+                              <Line type="monotone" dataKey="avg" stroke={COLORS.avg} strokeWidth={3} dot={false} />
                             )}
                           </LineChart>
                         </ResponsiveContainer>
