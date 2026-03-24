@@ -45,8 +45,16 @@ export default function App() {
   const [viewMode, setViewMode] = useState({});
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [selectedStation, setSelectedStation] = useState(null);
+  const [selectedUnit, setSelectedUnit] = useState(null);
 
   useEffect(() => {
+    // Load selected station and unit from localStorage
+    const station = localStorage.getItem("selectedStation");
+    const unit = localStorage.getItem("selectedUnit");
+    if (station) setSelectedStation(JSON.parse(station));
+    if (unit) setSelectedUnit(JSON.parse(unit));
+
     fetchHistory();
   }, []);
 
@@ -175,6 +183,15 @@ export default function App() {
                 <div style={styles.brandTagline}>FURNACE FLAME TEMPERATURE MAPPING SYSTEM</div>
               </div>
             </div>
+
+            {selectedStation && selectedUnit && (
+              <div style={styles.stationUnitBlock}>
+                <div style={styles.stationUnitLabel}>STATION</div>
+                <div style={styles.stationUnitValue}>{selectedStation.name}</div>
+                <div style={styles.stationUnitLabel}>UNIT</div>
+                <div style={styles.stationUnitValue}>{selectedUnit.name}</div>
+              </div>
+            )}
 
             <div style={styles.headerStats}>
               <div style={styles.statItem}>
@@ -610,6 +627,26 @@ const styles = {
     width: "auto",
     height: "auto",
     objectFit: "contain",
+  },
+  stationUnitBlock: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: "4px",
+    margin: "0 24px",
+  },
+  stationUnitLabel: {
+    fontFamily: "'DM Mono', monospace",
+    fontSize: "8px",
+    letterSpacing: "0.2em",
+    color: "#84889a",
+    textTransform: "uppercase",
+  },
+  stationUnitValue: {
+    fontFamily: "'Bebas Neue', sans-serif",
+    fontSize: "16px",
+    color: "#000ed9",
+    lineHeight: 1,
   },
   runIndex: {
     fontFamily: "'Bebas Neue', sans-serif",
