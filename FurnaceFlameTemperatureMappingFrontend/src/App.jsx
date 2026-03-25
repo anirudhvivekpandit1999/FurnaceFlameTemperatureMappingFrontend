@@ -45,6 +45,7 @@ export default function App() {
   const [viewMode, setViewMode] = useState({});
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [uploadDate, setUploadDate] = useState("");
   const [selectedStation, setSelectedStation] = useState(null);
   const [selectedUnit, setSelectedUnit] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false); 
@@ -92,11 +93,17 @@ export default function App() {
   const handleUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
+    if (!uploadDate) {
+      alert("Please select a date before uploading.");
+      return;
+    }
     setUploading(true);
     const formData = new FormData();
     formData.append("file", file);
+    formData.append("date", uploadDate);
     await axios.post(`${BASE_URL}/upload`, formData);
     await fetchHistory();
+    setUploadDate("");
     setUploading(false);
   };
 
@@ -227,6 +234,15 @@ export default function App() {
           <aside style={styles.sidebar} className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
             <div style={styles.sideSection}>
               <div style={styles.sideLabel}>INGEST DATA</div>
+              <div style={{ marginBottom: "12px" }}>
+                <label style={{ display: "block", fontSize: "9px", color: "#84889a", marginBottom: "6px", fontFamily: "'DM Mono', monospace", letterSpacing: "0.1em" }}>SELECT DATE</label>
+                <input
+                  type="date"
+                  value={uploadDate}
+                  onChange={(e) => setUploadDate(e.target.value)}
+                  style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #d1cfe0", fontFamily: "'DM Mono', monospace", fontSize: "11px" }}
+                />
+              </div>
               <label className="upload-zone">
                 <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5">
                   <path d="M7 1v8M4 4l3-3 3 3M2 11h10" strokeLinecap="round" strokeLinejoin="round" />
