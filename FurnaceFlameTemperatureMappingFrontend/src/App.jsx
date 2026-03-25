@@ -47,7 +47,7 @@ export default function App() {
   const [endDate, setEndDate] = useState("");
   const [selectedStation, setSelectedStation] = useState(null);
   const [selectedUnit, setSelectedUnit] = useState(null);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false); 
 
   useEffect(() => {
     const station = localStorage.getItem("selectedStation");
@@ -399,7 +399,7 @@ export default function App() {
                           THERMAL PROFILE — ELEVATION VS TEMPERATURE
                         </div>
 
-                        <ResponsiveContainer width="100%" height={560}>
+                        <ResponsiveContainer width="100%" height={250}>
                           <LineChart data={runData} layout="vertical">
                             <CartesianGrid strokeDasharray="2 6" vertical />
                             <YAxis dataKey="elevation" reversed />
@@ -489,12 +489,12 @@ const styles = {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: "0 32px",
+    padding: "0 20px",
     height: "64px",
     width: "100%",
   },
   hamburger: {
-    display: "none",
+    display: "flex",
     flexDirection: "column",
     justifyContent: "center",
     alignItems: "center",
@@ -562,12 +562,8 @@ const styles = {
   },
   runsWrapper: {
     display: "flex",
-    flexDirection: "row",
-    flexWrap: "nowrap",
-    overflowX: "auto",
-    overflowY: "hidden",
-    gap: "20px",
-
+    flexDirection: "column",
+    gap: "12px",
   },
 
 
@@ -606,7 +602,7 @@ const styles = {
     position: "relative",
   },
   sidebar: {
-    width: "280px",
+    width: "240px",
     flexShrink: 0,
     borderRight: "1px solid #d3cfe0",
     background: "#f8f7fd",
@@ -615,6 +611,8 @@ const styles = {
     maxHeight: "calc(100vh - 64px)",
     position: "sticky",
     top: "64px",
+    transform: "translateX(0)",
+    transition: "transform 0.3s ease",
   },
   sideSection: {
     padding: "0 16px 24px",
@@ -693,7 +691,7 @@ const styles = {
   },
   mainContent: {
     flex: 1,
-    padding: "32px 40px",
+    padding: "20px 24px",
     background: "#ededf5",
     minWidth: 0,
   },
@@ -702,7 +700,7 @@ const styles = {
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
-    height: "60vh",
+    height: "50vh",
     gap: "20px",
     textAlign: "center",
   },
@@ -721,17 +719,17 @@ const styles = {
     lineHeight: 1.7,
   },
   runSection: {
-    marginBottom: "28px",
+    marginBottom: "16px",
     overflowX: "hidden",
     transition: "box-shadow 0.2s ease",
-    minWidth: "700px"
+    width: "100%"
   },
   runHeader: {
     display: "flex",
     alignItems: "flex-start",
     justifyContent: "space-between",
     gap: "20px",
-    padding: "22px 28px",
+    padding: "16px 20px",
     borderBottom: "1px solid #e3e3f0",
     background: "#f7f8fd",
     flexWrap: "wrap",
@@ -787,7 +785,7 @@ const styles = {
     marginTop: "4px",
   },
   chartPanel: {
-    padding: "24px 28px",
+    padding: "16px 20px",
     borderBottom: "1px solid #e3e3f0",
     background: "#ffffff",
     width: "100%",
@@ -820,7 +818,7 @@ const styles = {
     textTransform: "uppercase",
   },
   tablePanel: {
-    padding: "24px 28px",
+    padding: "16px 20px",
     background: "#ffffff",
   },
   tooltip: {
