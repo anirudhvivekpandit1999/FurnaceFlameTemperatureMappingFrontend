@@ -197,9 +197,43 @@
           transform: translateX(0);
         }
 
+        @media (max-width: 1024px) {
+          .data-table {
+            font-size: 10px;
+          }
+
+          .data-table thead th,
+          .data-table tbody td {
+            padding: 8px 10px;
+          }
+
+          .header-inner {
+            gap: 12px !important;
+          }
+
+          .station-unit-block {
+            display: none !important;
+          }
+
+          .header-stats {
+            gap: 16px !important;
+          }
+        }
+
         @media (min-width: 769px) {
           .sidebar {
             transform: translateX(0) !important;
+            position: relative !important;
+            top: auto !important;
+            height: auto !important;
+          }
+
+          .main-content {
+            margin-left: 0 !important;
+          }
+
+          .hamburger {
+            display: none !important;
           }
         }
 
@@ -390,9 +424,92 @@
           }
         }
 
-        .recharts-cartesian-axis-tick text {
-          font-family: 'DM Mono', monospace !important;
-          font-size: 10px !important;
+        @media (min-width: 1024px) and (max-width: 1399px) {
+          .data-table {
+            font-size: 10px;
+          }
+
+          .data-table thead th,
+          .data-table tbody td {
+            padding: 8px 10px;
+          }
+
+          .header-stats {
+            gap: 18px !important;
+          }
+        }
+
+        @media (min-width: 1400px) {
+          .upload-zone {
+            padding: 12px 28px;
+            font-size: 10px;
+          }
+
+          .run-card {
+            padding: 14px 16px;
+            gap: 12px;
+          }
+
+          .data-table {
+            font-size: 12px;
+          }
+
+          .data-table thead th,
+          .data-table tbody td {
+            padding: 10px 16px;
+          }
+
+          .station-unit-block {
+            display: flex !important;
+          }
+
+          .header-stats {
+            gap: 24px !important;
+          }
+        }
+
+        @media (max-height: 800px) {
+          .content {
+            min-height: auto;
+          }
+
+          .main-layout {
+            min-height: auto;
+          }
+
+          .run-section {
+            margin-bottom: 12px;
+          }
+
+          .chartPanel {
+            padding: 12px 16px;
+          }
+        }
+
+        @media (orientation: landscape) and (max-height: 600px) {
+          .header {
+            height: 56px;
+          }
+
+          .header-inner {
+            height: 56px;
+          }
+
+          .main-layout {
+            min-height: calc(100vh - 56px);
+          }
+
+          .sidebar {
+            max-height: calc(100vh - 56px);
+          }
+
+          .run-section {
+            margin-bottom: 8px;
+          }
+
+          .brand-name {
+            font-size: 16px;
+          }
         }
 
         .section-paper {

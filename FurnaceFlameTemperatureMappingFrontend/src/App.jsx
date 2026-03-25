@@ -48,7 +48,20 @@ export default function App() {
   const [uploadDate, setUploadDate] = useState("");
   const [selectedStation, setSelectedStation] = useState(null);
   const [selectedUnit, setSelectedUnit] = useState(null);
-  const [sidebarOpen, setSidebarOpen] = useState(false); 
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [chartHeight, setChartHeight] = useState(250);
+
+  useEffect(() => {
+    const calculateChartHeight = () => {
+      const windowHeight = window.innerHeight;
+      const newHeight = Math.max(200, Math.min(350, windowHeight * 0.35));
+      setChartHeight(newHeight);
+    };
+
+    calculateChartHeight();
+    window.addEventListener("resize", calculateChartHeight);
+    return () => window.removeEventListener("resize", calculateChartHeight);
+  }, []); 
 
   useEffect(() => {
     const station = localStorage.getItem("selectedStation");
@@ -415,7 +428,7 @@ export default function App() {
                           THERMAL PROFILE — ELEVATION VS TEMPERATURE
                         </div>
 
-                        <ResponsiveContainer width="100%" height={250}>
+                        <ResponsiveContainer width="100%" height={chartHeight}>
                           <LineChart data={runData} layout="vertical">
                             <CartesianGrid strokeDasharray="2 6" vertical />
                             <YAxis dataKey="elevation" reversed />
@@ -505,9 +518,11 @@ const styles = {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: "0 20px",
+    padding: "0 clamp(12px, 3vw, 32px)",
     height: "64px",
     width: "100%",
+    flexWrap: "wrap",
+    gap: "clamp(8px, 2vw, 16px)",
   },
   hamburger: {
     display: "flex",
@@ -531,24 +546,26 @@ const styles = {
   logoBlock: {
     display: "flex",
     alignItems: "center",
-    gap: "14px",
+    gap: "clamp(8px, 2vw, 14px)",
+    minWidth: 0,
   },
 
   filterBar: {
     display: "flex",
-    gap: "10px",
-    marginBottom: "16px",
+    gap: "clamp(6px, 1vw, 10px)",
+    marginBottom: "clamp(12px, 2vw, 16px)",
     flexWrap: "wrap",
   },
 
   filterBtn: {
     border: "none",
-    padding: "6px 12px",
-    fontSize: "10px",
+    padding: "clamp(4px, 1vw, 6px) clamp(8px, 1.5vw, 12px)",
+    fontSize: "clamp(8px, 1.2vw, 10px)",
     fontFamily: "'DM Mono', monospace",
     letterSpacing: "0.1em",
     cursor: "pointer",
     borderRadius: "4px",
+    whiteSpace: "nowrap",
   },
   logoMark: {
     width: "40px",
@@ -563,7 +580,7 @@ const styles = {
   },
   brandName: {
     fontFamily: "'Bebas Neue', sans-serif",
-    fontSize: "20px",
+    fontSize: "clamp(14px, 2.5vw, 20px)",
     letterSpacing: "0.15em",
     color: "#12121a",
     lineHeight: 1,
@@ -579,14 +596,16 @@ const styles = {
   runsWrapper: {
     display: "flex",
     flexDirection: "column",
-    gap: "12px",
+    gap: "clamp(8px, 2vw, 12px)",
+    width: "100%",
   },
 
 
   headerStats: {
     display: "flex",
     alignItems: "center",
-    gap: "24px",
+    gap: "clamp(8px, 2vw, 24px)",
+    flexWrap: "wrap",
   },
   statItem: {
     display: "flex",
@@ -595,7 +614,7 @@ const styles = {
   },
   statNum: {
     fontFamily: "'Bebas Neue', sans-serif",
-    fontSize: "22px",
+    fontSize: "clamp(16px, 2vw, 22px)",
     color: "#000ed9",
     lineHeight: 1,
   },
@@ -618,11 +637,11 @@ const styles = {
     position: "relative",
   },
   sidebar: {
-    width: "240px",
+    width: "clamp(200px, 25vw, 280px)",
     flexShrink: 0,
     borderRight: "1px solid #d3cfe0",
     background: "#f8f7fd",
-    padding: "24px 0",
+    padding: "clamp(16px, 2vw, 24px) 0",
     overflowY: "auto",
     maxHeight: "calc(100vh - 64px)",
     position: "sticky",
@@ -631,7 +650,7 @@ const styles = {
     transition: "transform 0.3s ease",
   },
   sideSection: {
-    padding: "0 16px 24px",
+    padding: "0 clamp(12px, 2vw, 16px) clamp(16px, 3vw, 24px)",
     borderBottom: "1px solid #e0dfee",
     marginBottom: "0",
   },
@@ -676,8 +695,9 @@ const styles = {
     display: "flex",
     flexDirection: "row",
     alignItems: "center",
-    gap: "4px",
-    margin: "0 24px",
+    gap: "clamp(4px, 1vw, 8px)",
+    margin: "0 clamp(8px, 2vw, 24px)",
+    flexWrap: "wrap",
   },
   stationUnitLabel: {
     fontFamily: "'DM Mono', monospace",
@@ -707,7 +727,7 @@ const styles = {
   },
   mainContent: {
     flex: 1,
-    padding: "20px 24px",
+    padding: "clamp(12px, 3vw, 32px) clamp(12px, 4vw, 40px)",
     background: "#ededf5",
     minWidth: 0,
   },
@@ -717,8 +737,9 @@ const styles = {
     alignItems: "center",
     justifyContent: "center",
     height: "50vh",
-    gap: "20px",
+    gap: "clamp(12px, 3vw, 20px)",
     textAlign: "center",
+    padding: "clamp(16px, 5vw, 32px)",
   },
   emptyIcon: { opacity: 0.7 },
   emptyTitle: {
@@ -729,23 +750,24 @@ const styles = {
   },
   emptyBody: {
     fontFamily: "'DM Sans', sans-serif",
-    fontSize: "13px",
+    fontSize: "clamp(11px, 2vw, 13px)",
     color: "#84879a",
-    maxWidth: "360px",
+    maxWidth: "90%",
     lineHeight: 1.7,
   },
   runSection: {
-    marginBottom: "16px",
+    marginBottom: "clamp(12px, 2vw, 28px)",
     overflowX: "hidden",
     transition: "box-shadow 0.2s ease",
-    width: "100%"
+    width: "100%",
+    minWidth: 0,
   },
   runHeader: {
     display: "flex",
     alignItems: "flex-start",
     justifyContent: "space-between",
-    gap: "20px",
-    padding: "16px 20px",
+    gap: "clamp(12px, 2vw, 20px)",
+    padding: "clamp(12px, 2vw, 22px) clamp(12px, 2vw, 28px)",
     borderBottom: "1px solid #e3e3f0",
     background: "#f7f8fd",
     flexWrap: "wrap",
@@ -763,7 +785,7 @@ const styles = {
   },
   runTitle: {
     fontFamily: "'Bebas Neue', sans-serif",
-    fontSize: "22px",
+    fontSize: "clamp(14px, 2vw, 22px)",
     letterSpacing: "0.12em",
     color: "#13121a",
     lineHeight: 1,
@@ -778,17 +800,20 @@ const styles = {
   runKpis: {
     display: "flex",
     gap: "1px",
+    flexWrap: "wrap",
+    width: "100%",
   },
   kpiCard: {
-    padding: "10px 20px",
+    padding: "clamp(8px, 1.5vw, 10px) clamp(12px, 2vw, 20px)",
     background: "#eeedf5",
     borderLeft: "1px solid #dfe1ee",
     textAlign: "right",
-    minWidth: "90px",
+    minWidth: "clamp(75px, 15vw, 120px)",
+    flex: "1 1 auto",
   },
   kpiValue: {
     fontFamily: "'Bebas Neue', sans-serif",
-    fontSize: "22px",
+    fontSize: "clamp(14px, 2vw, 22px)",
     letterSpacing: "0.05em",
     lineHeight: 1,
   },
@@ -801,11 +826,12 @@ const styles = {
     marginTop: "4px",
   },
   chartPanel: {
-    padding: "16px 20px",
+    padding: "clamp(12px, 2vw, 24px)",
     borderBottom: "1px solid #e3e3f0",
     background: "#ffffff",
     width: "100%",
     boxSizing: "border-box",
+    overflowX: "auto",
   },
   chartLabel: {
     fontFamily: "'DM Mono', monospace",
@@ -834,8 +860,9 @@ const styles = {
     textTransform: "uppercase",
   },
   tablePanel: {
-    padding: "16px 20px",
+    padding: "clamp(12px, 2vw, 24px)",
     background: "#ffffff",
+    overflowX: "auto",
   },
   tooltip: {
     background: "#ffffff",
