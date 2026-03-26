@@ -333,9 +333,9 @@ export default function App() {
                   <img style={styles.logoImage} src={img} />
 
                 </div>
-                <div style={styles.emptyTitle}>SELECT A RUN TO ANALYZE</div>
+                <div style={styles.emptyTitle}>SELECT A DATE TO ANALYZE</div>
                 <div style={styles.emptyBody}>
-                  Choose one or more runs from the archive to visualize thermal profiles and compare performance across sessions.
+                  Choose one or more runs from the dates to visualize thermal profiles and compare performance across dates.
                 </div>
               </div>
             )}
@@ -350,6 +350,18 @@ export default function App() {
                 const maxTemp = Math.max(...temps);
                 const minTemp = Math.min(...temps);
                 const avgTemp = (temps.reduce((a, b) => a + b, 0) / temps.length).toFixed(1);
+
+                const topRow = runData.reduce(
+                  (current, next) => (next.elevation > current.elevation ? next : current),
+                  runData[0]
+                );
+                const peakTemp = Number(topRow.avg);
+
+                const bottomRow = runData.reduce(
+                  (current, next) => (next.elevation < current.elevation ? next : current),
+                  runData[0]
+                );
+                const floorTemp = Number(bottomRow.avg);
 
                 const accentHues = ["#0000d9", "#271a8a", "#3f41a0", "#0e0bb8", "#402e7d"];
                 const accent = accentHues[runIdx % accentHues.length];
@@ -376,10 +388,12 @@ export default function App() {
 
                       <div style={styles.runKpis}>
                         {[
-                          { label: "PEAK TEMP", value: `${maxTemp.toFixed(0)}°C`, color: "#2b2bc0" },
-                          { label: "FLOOR TEMP", value: `${minTemp.toFixed(0)}°C`, color: "#1a258a" },
+                          { label: "PEAK TEMP", value: `${peakTemp.toFixed(0)}°C`, color: "#2b2bc0" },
+                          { label: "FLOOR TEMP", value: `${floorTemp.toFixed(0)}°C`, color: "#1a258a" },
+                          { label: "MAX TEMP", value: `${maxTemp.toFixed(0)}°C`, color: "#c0392b" },
+                          { label: "MIN TEMP", value: `${minTemp.toFixed(0)}°C`, color: "#0079a1" },
                           { label: "AVG TEMP", value: `${avgTemp}°C`, color: "#0e00d9" },
-                          { label: "DATA POINTS", value: runData.length, color: "#39355a" },
+                          { label: "NUMBER OF ELEVATIONS", value: runData.length, color: "#39355a" },
                         ].map((kpi) => (
                           <div key={kpi.label} style={styles.kpiCard}>
                             <div style={{ ...styles.kpiValue, color: kpi.color }}>{kpi.value}</div>
